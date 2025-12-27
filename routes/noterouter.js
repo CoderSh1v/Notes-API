@@ -8,25 +8,30 @@ note.use(jwtAuth)
 
 //READ NOTES
 note.get("/", asyncHandler(async (req, res) => {
-  const page = Math.max(parseInt(req.query.page) || 1, 1);
-  const limit = Math.min(parseInt(req.query.limit) || 10, 50);
-  const skip = (page - 1) * limit;
+    const sortAlgo = req.query.sort || "latest"
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(parseInt(req.query.limit) || 10, 50);
+    const skip = (page - 1) * limit;
 
-  const [data, totalNotes] = await Promise.all([
-    notes.find({ userId: req.user.userId }).sort({createdAt:-1}).skip(skip).limit(limit).lean(),
-    notes.countDocuments({ userId: req.user.userId })
-  ]);
+var sortOption;
+    if (sortAlgo === "latest") sortOption = { createdAt: -1 }
+    else if (sortAlgo === "oldest") sortOption = { createdAt: 1 }
+    else return res.status(406).json({ message: "Query not Acceptable" })
 
-  const totalPages = Math.ceil(totalNotes / limit);
+    const [data, totalNotes] = await Promise.all([
+        notes.find({ userId: req.user.userId }).sort(sortOption).skip(skip).limit(limit).lean(),
+        notes.countDocuments({ userId: req.user.userId })
+    ]);
+    const totalPages = Math.ceil(totalNotes / limit);
 
-  res.status(200).json({
-    success: true,
-    data,
-    page,
-    limit,
-    total: totalNotes,
-    totalPages
-  });
+    res.status(200).json({
+        success: true,
+        data,
+        page,
+        limit,
+        total: totalNotes,
+        totalPages
+    });
 }));
 
 
