@@ -8,17 +8,38 @@ note.use(jwtAuth)
 
 //READ NOTES
 note.get("/", asyncHandler(async (req, res) => {
-    const sortAlgo = req.query.sort || "latest"
-    const page = Math.max(parseInt(req.query.page) || 1, 1);
     const limit = Math.min(parseInt(req.query.limit) || 10, 50);
-    const skip = (page - 1) * limit;
+    var cursorTime = req.query.cursor;
 
-var sortOption;
+    // CURSOR PAGINATION
+    var notesData, cursor = null;
+    if (cursorTime) {
+        cursorTime = new Date(cursorTime)
+        notesData = await notes.find({ userId: req.user.userId, createdAt: { $lt: cursorTime } }).sort({ createdAt: -1 }).limit(limit)
+    }
+    else {
+        notesData = await notes.find({ userId: req.user.userId }).sort({ createdAt: -1 }).limit(limit)
+    }
+
+    if (notesData.length > 0 && notesData.length === limit) {
+        cursor = notesData[notesData.length - 1].createdAt.toISOString();
+    }
+
+    return res.status(200).json({
+        success: true,
+        data: notesData,
+        cursor
+    });
+
+    // OFFSET PAGENATION
+    /*const sortAlgo = req.query.sort || "latest"
+    var sortOption;
     if (sortAlgo === "latest") sortOption = { createdAt: -1 }
     else if (sortAlgo === "oldest") sortOption = { createdAt: 1 }
     else return res.status(406).json({ message: "Query not Acceptable" })
-
-    const [data, totalNotes] = await Promise.all([
+    const skip = (page - 1) * limit;
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const [notesData, totalNotes] = await Promise.all([
         notes.find({ userId: req.user.userId }).sort(sortOption).skip(skip).limit(limit).lean(),
         notes.countDocuments({ userId: req.user.userId })
     ]);
@@ -26,12 +47,12 @@ var sortOption;
 
     res.status(200).json({
         success: true,
-        data,
+        notesData,
         page,
         limit,
         total: totalNotes,
         totalPages
-    });
+    });*/
 }));
 
 
@@ -50,16 +71,16 @@ note.get('/:id', asyncHandler(async (req, res) => {
 
 //POST NOTES
 note.post("/", asyncHandler(async (req, res) => {
-    const data = req.body.title;
-    await notes.create({ title: data, userId: req.user.userId });
+    const notesData = req.body.title;
+    await notes.create({ title: notesData, userId: req.user.userId });
     res.status(201).json({ message: "note created" });
 }))
 
 //UPDATE DOC
 note.patch('/:id', asyncHandler(async (req, res) => {
     const id = req.params.id;
-    const data = req.body;
-    const note = await notes.findByIdAndUpdate(id, data, { new: true, runValidators: true }).lean();
+    const notesData = req.body;
+    const note = await notes.findByIdAndUpdate(id, notesData, { new: true, runValidators: true }).lean();
     if (note == null) {
         res.status(404).json({ success: false, message: "Doc Not Found" })
     }

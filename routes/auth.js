@@ -29,7 +29,7 @@ auth.post("/login", asyncHandler(async (req, res) => {
     });
   }
   const JWT_secret = process.env.Secret_Key;
-  const token = jwt.sign({userId : user._id},JWT_secret,{expiresIn: '1h'})
+  const token = jwt.sign({userId : user._id},JWT_secret,{expiresIn: '1d'})
   
   return res.status(200).json({
     success: true,
