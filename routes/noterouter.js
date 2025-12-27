@@ -13,7 +13,7 @@ note.get("/", asyncHandler(async (req, res) => {
   const skip = (page - 1) * limit;
 
   const [data, totalNotes] = await Promise.all([
-    notes.find({ userId: req.user.userId }).skip(skip).limit(limit).lean(),
+    notes.find({ userId: req.user.userId }).sort({createdAt:-1}).skip(skip).limit(limit).lean(),
     notes.countDocuments({ userId: req.user.userId })
   ]);
 
