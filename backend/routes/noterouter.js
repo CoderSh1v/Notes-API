@@ -1,0 +1,107 @@
+import express from 'express'
+import { notes } from '../models/notesSchema.js'
+import { asyncHandler } from '../middlewares/asynchandler.js';
+import { jwtAuth } from '../middlewares/jwtAuth.js';
+const note = express.Router();
+
+note.use(jwtAuth)
+
+//READ NOTES
+note.get("/", asyncHandler(async (req, res) => {
+    const limit = Math.min(parseInt(req.query.limit) || 10, 50);
+    var cursorTime = req.query.cursor;
+
+    // CURSOR PAGINATION
+    var notesData, cursor = null;
+    if (cursorTime) {
+        cursorTime = new Date(cursorTime)
+        notesData = await notes.find({ userId: req.user.userId, createdAt: { $lt: cursorTime } }).sort({ createdAt: -1 }).limit(limit)
+    }
+    else {
+        notesData = await notes.find({ userId: req.user.userId }).sort({ createdAt: -1 }).limit(limit)
+    }
+
+    if (notesData.length > 0 && notesData.length === limit) {
+        cursor = notesData[notesData.length - 1].createdAt.toISOString();
+    }
+
+    return res.status(200).json({
+        success: true,
+        data: notesData,
+        cursor
+    });
+
+    // OFFSET PAGENATION
+    /*const sortAlgo = req.query.sort || "latest"
+    var sortOption;
+    if (sortAlgo === "latest") sortOption = { createdAt: -1 }
+    else if (sortAlgo === "oldest") sortOption = { createdAt: 1 }
+    else return res.status(406).json({ message: "Query not Acceptable" })
+    const skip = (page - 1) * limit;
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const [notesData, totalNotes] = await Promise.all([
+        notes.find({ userId: req.user.userId }).sort(sortOption).skip(skip).limit(limit).lean(),
+        notes.countDocuments({ userId: req.user.userId })
+    ]);
+    const totalPages = Math.ceil(totalNotes / limit);
+
+    res.status(200).json({
+        success: true,
+        notesData,
+        page,
+        limit,
+        total: totalNotes,
+        totalPages
+    });*/
+}));
+
+
+
+//RETREIVE SINGLE DOC
+note.get('/:id', asyncHandler(async (req, res) => {
+    const id = req.params.id;
+    const note = await notes.findById(id).lean();
+    if (note == null) {
+        res.status(404).json({ success: false, message: "Doc Not Found" })
+    }
+    else {
+        res.status(200).json(note);
+    }
+}))
+
+//Create NOTES
+note.post("/", asyncHandler(async (req, res) => {
+    const notesData = req.body.title;
+    await notes.create({ title: notesData, userId: req.user.userId });
+    res.status(201).json({ message: "note created" });
+}))
+
+//UPDATE DOC
+note.patch('/:id', asyncHandler(async (req, res) => {
+    const id = req.params.id;
+    const notesData = req.body;
+    const note = await notes.findByIdAndUpdate(id, notesData, { new: true, runValidators: true }).lean();
+    if (note == null) {
+        res.status(404).json({ success: false, message: "Doc Not Found" })
+    }
+    else {
+        res.status(200).json(note);
+    }
+
+}))
+
+//DELETE NOTES
+
+note.delete('/:id', asyncHandler(async (req, res) => {
+    const note_id = req.params.id;
+    const note = await notes.findByIdAndDelete(note_id).lean();
+    if (note == null) {
+        res.status(404).json({ success: false, message: "Doc Not Found" })
+    }
+    else {
+        res.status(200).json({ success: true, message: "Doc Deleted" });
+    }
+}))
+
+
+export { note }
