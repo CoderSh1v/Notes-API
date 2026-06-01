@@ -37,12 +37,20 @@ auth.post("/login", asyncHandler(async (req, res) => {
 
 
 auth.post("/register",asyncHandler(async(req,res) => {
-    const credentials = {
-        email: req.body.email,
-        password : req.body.password
+  const credentials = {
+    email: req.body.email,
+    password : req.body.password
+  }
+    let user = await User.findOne({email : req.body.email})
+    if(user){
+      res.status(409).json({
+        message : "User already registered with this email"
+      })
     }
-    await User.create(credentials);
-    res.status(201).json({success : "true"});
+    else{
+      await User.create(credentials);
+      res.status(201).json({success : "true"});
+    }
 }))
 
 auth.use(errorMiddleware)
