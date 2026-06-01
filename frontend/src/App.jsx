@@ -1,13 +1,10 @@
-import { useState, useEffect} from 'react'
-
-
+import { useState, useEffect, useRef} from 'react'
+import Register from './components/register'  
 function App() {
   
-  
-
   return (
     <div>
-      
+      <Register />
     </div>
   )
 }
