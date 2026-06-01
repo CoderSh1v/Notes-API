@@ -5,8 +5,11 @@ import { logger } from './middlewares/customlogger.js';
 import { echo } from './routes/echo.route.js';
 import { note } from './routes/noterouter.js';
 import { auth } from './routes/auth.js';
+import cors from "cors"
+
 const app = express();
 
+app.use(cors())
 app.use(express.json());
 app.use(logger);
 app.set("trust proxy",1)
