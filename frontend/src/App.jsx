@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef } from 'react'
-import Register from './components/Register'
+import Register from './pages/Register'
 import { createBrowserRouter, RouterProvider} from 'react-router-dom'
-import Login from './components/Login'
+import Login from './pages/Login'
+import Home from './pages/Home'
 
 function App() {
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <>  <Register /></>
+      element: <>  <Home /></>
     },
     {
       path : "/register",
