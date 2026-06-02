@@ -20,8 +20,7 @@ function App() {
   ]) 
   return (
     <div>
-      {/* <Register /> */}
-      <RouterProvider router={router} />,
+      <RouterProvider router={router} />
     </div>
   )
 }
