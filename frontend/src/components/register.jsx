@@ -1,14 +1,16 @@
 import React from 'react'
 import { useState } from 'react'
 import { useForm } from "react-hook-form"
-const register = () => {
+import { Link, useNavigate } from 'react-router-dom'
 
+const Register = () => {
+    const navigate = useNavigate()
     const {
         register,
         handleSubmit,
         watch,
         setError,
-        clearErrors,
+          clearErrors,
         formState: { errors, isSubmitting },
     } = useForm()
     let password = watch("password")
@@ -24,6 +26,7 @@ const register = () => {
             setError("root.serverError", { type: "server", message: responseData.message })
             return
         }
+        navigate("/login")
     }
 
     return (
@@ -56,15 +59,16 @@ const register = () => {
                         validate: (value) =>
                             value === password || "Passwords do not match"
                     })} />
-                    {errors.confirmPassword && <span className="error">{errors.confirmPassword.message}</span>}
+                {errors.confirmPassword && <span className="error">{errors.confirmPassword.message}</span>}
                 <br />
                 <br />
                 <input disabled={isSubmitting} type="submit" />
                 <p>{errors.root && errors.root?.serverError?.message}</p>
-
+                <Link to="/login" > Already a member? Sign In</Link>
+                
             </form>
         </div>
     )
 }
 
-export default register
+export default Register
