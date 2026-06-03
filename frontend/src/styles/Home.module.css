@@ -2,3 +2,8 @@
     border: solid 1px black;
     border-radius: 15px;
 }
+
+footer {
+    display: flex;
+    justify-content: space-evenly;
+}

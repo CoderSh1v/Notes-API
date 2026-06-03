@@ -19,7 +19,7 @@ const NoteCard = (props) => {
         <div className={styles.note} onClick={()=>{openSingleNote(props._id)}} >
             <span>{props.title}</span>
             
-            <button className={styles.delete} onClick={()=>deleteNote(props._id)}>Delete</button>
+            <button className={styles.delete} onClick={(e)=>{ e.stopPropagation() ;deleteNote(props._id)}}>Delete</button>
         </div>
     )
 }
