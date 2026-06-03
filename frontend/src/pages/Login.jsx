@@ -1,6 +1,7 @@
 import React from 'react'
 import { useState } from 'react'
 import { useForm } from "react-hook-form"
+import { useNavigate } from 'react-router-dom'
 
 const Login = () => {
     const {
@@ -11,7 +12,7 @@ const Login = () => {
         clearErrors,
         formState: { errors, isSubmitting },
     } = useForm()
-    
+    const navigate = useNavigate()
     const onSubmit = async (data) => {
         clearErrors("root.serverError")
         const response = await fetch("http://localhost:3000/auth/login", {
@@ -25,6 +26,7 @@ const Login = () => {
             return
         }
         localStorage.setItem("token",responseData.token)
+        navigate("/")
     }
     
 
