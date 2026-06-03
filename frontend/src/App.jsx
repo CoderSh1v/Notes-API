@@ -3,7 +3,7 @@ import Register from './pages/Register'
 import { createBrowserRouter, RouterProvider} from 'react-router-dom'
 import Login from './pages/Login'
 import Home from './pages/Home'
-
+import NoteDetails from './pages/NoteDetails'
 function App() {
   const router = createBrowserRouter([
     {
@@ -17,6 +17,10 @@ function App() {
     {
       path : "/login",
       element :<>  <Login /></>
+    },
+    {
+      path : "/notes/:id",
+      element : <><NoteDetails /></>
     }
   ]) 
   return (
