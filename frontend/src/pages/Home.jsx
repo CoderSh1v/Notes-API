@@ -7,17 +7,17 @@ import NoteCard from '../components/NoteCard'
 function Home() {
   const [noteVisibility, setNoteVisibility] = useState(false)
   const [notes, setNotes] = useState([])
-    
-    useEffect( () => {
-      async function fetchNotes() {
-        const token = localStorage.getItem("token")
-        const response = await fetch("http://localhost:3000/notes", {
-          headers: { "Content-Type": "application/json", authorization: `Bearer ${token}` }
-        })
-        setNotes((await response.json()).data)
-      }
-      fetchNotes()
-    }, [])
+
+  useEffect(() => {
+    async function fetchNotes() {
+      const token = localStorage.getItem("token")
+      const response = await fetch("http://localhost:3000/notes", {
+        headers: { "Content-Type": "application/json", authorization: `Bearer ${token}` }
+      })
+      setNotes((await response.json()).data)
+    }
+    fetchNotes()
+  }, [])
 
 
   return (
@@ -37,8 +37,8 @@ function Home() {
         <h3>Your Notes</h3>
         <div className={styles.notes} >
           {notes.map((note) => (
-                <NoteCard key={note._id} title = {note.title} />
-            ))}
+            <NoteCard key={note._id} _id={note._id} title={note.title} />
+          ))}
         </div>
       </div>
     </div>
