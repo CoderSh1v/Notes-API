@@ -12,14 +12,17 @@ const NewNote = () => {
     } = useForm()
 
     const onSubmit = async (data) => {
-        console.log(data)
+        clearErrors("root.serverError")
         const token = localStorage.getItem("token")
         const response = await fetch("http://localhost:3000/notes", {
             method: "POST",
-            headers: { "Content-Type": "application/json" ,authorization: `Bearer ${token}` },
+            headers: { "Content-Type": "application/json", authorization: `Bearer ${token}` },
             body: JSON.stringify(data),
-            
         })
+        if (!response.ok) {
+            setError("root.serverError", { type: "server", message: "Title can't be same" })
+            return
+        }
     }
 
     return (
@@ -31,7 +34,8 @@ const NewNote = () => {
                 )} />
                 <input type="submit" className="submitButton" value="Create Note" />
                 <br />{errors.title && errors.title.message}
-                
+                <p>{errors.root && errors.root?.serverError?.message}</p>
+
             </form>
         </div>
     )

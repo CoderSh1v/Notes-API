@@ -1,0 +1,9 @@
+.note{
+    display: flex;
+    border: solid 1px black;
+    margin: 15px ;
+    padding: 15px;
+    align-items: center;
+    justify-content: space-between;
+
+}
