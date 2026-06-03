@@ -8,7 +8,8 @@ function Home() {
   const [noteVisibility, setNoteVisibility] = useState(false)
   const [notes, setNotes] = useState([])
   const [Cursor, setCursor] = useState('')
-  const [LoadVisibilty, setLoadVisibilty] = useState(true)
+  const [search, setSearch] = useState("")
+
   useEffect(() => {
     async function fetchNotes() {
       const token = localStorage.getItem("token")
@@ -23,21 +24,23 @@ function Home() {
     fetchNotes()
   }, [])
   async function loadNotes() {
-    if(Cursor===null){
-      setLoadVisibilty(false)
-    }
-    else{
+    
       const token = localStorage.getItem("token")
       const response = await fetch(`http://localhost:3000/notes?cursor=${Cursor}`, {
         headers: { "Content-Type": "application/json", authorization: `Bearer ${token}` }
       })
       const jsonResponse = await response.json()
-      setNotes([...notes,...jsonResponse.data])
+      setNotes([...notes, ...jsonResponse.data])
       setCursor(jsonResponse.cursor)
-      
-    }
-  }
 
+  }
+  const filteredNotes = notes.filter((note)=>{
+   return note.title.toLowerCase().includes(search.toLowerCase()) 
+   })
+  
+  const handleSearch = (e) => {
+    setSearch(e.target.value)
+  }
 
   return (
     <div>
@@ -53,14 +56,15 @@ function Home() {
         {noteVisibility && <NewNote />}
 
         <h3>Your Notes</h3>
+        <input type="text" placeholder='search...' value={search} onChange={ handleSearch } />
         <div className={styles.notes} >
-          {notes.map((note) => (
+          {filteredNotes.map((note) => (
             <NoteCard key={note._id} _id={note._id} title={note.title} />
           ))}
           <footer>
-            {LoadVisibilty?
-            <button onClick={() => { loadNotes() }}>Load More</button>:
-            "No more notes"
+            {Cursor!== null ?
+              <button onClick={() => { loadNotes() }}>Load More</button> :
+              "No more notes"
             }
           </footer>
         </div>
