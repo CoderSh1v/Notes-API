@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import styles from "../styles/Home.module.css"
 import NewNote from '../components/NewNote'
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import NoteCard from '../components/NoteCard'
 
 function Home() {
@@ -9,17 +9,22 @@ function Home() {
   const [notes, setNotes] = useState([])
   const [Cursor, setCursor] = useState('')
   const [search, setSearch] = useState("")
-
+  const navigate = useNavigate()
   useEffect(() => {
     async function fetchNotes() {
       const token = localStorage.getItem("token")
       const response = await fetch(`http://localhost:3000/notes`, {
         headers: { "Content-Type": "application/json", authorization: `Bearer ${token}` }
       })
+      if(!response.ok){
+        navigate("/register")
+        return
+      }
       const jsonResponse = await response.json()
 
       setNotes(jsonResponse.data)
       setCursor(jsonResponse.cursor)
+      
     }
     fetchNotes()
   }, [])
